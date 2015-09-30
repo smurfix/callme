@@ -204,11 +204,16 @@ class Proxy(base.Base):
         start_time = time.time()
         while not self._is_received:
             try:
-                self._conn.drain_events(timeout=1)
+                timeout = self._timeout
+                if timeout:
+                    timeout = self._timeout - (time.time() - start_time)
+                    if timeout < 0.01:
+                        timeout = 0.01
+                else:
+                    timeout = None
+                self._conn.drain_events(timeout=timeout)
             except socket.timeout:
-                if self._timeout > 0:
-                    if time.time() - start_time > self._timeout:
-                        raise exc.RpcTimeout("RPC Request timeout")
+                raise exc.RpcTimeout("RPC Request timeout")
 
     def __getattr__(self, name):
         """This method is invoked, if a method is being called, which doesn't
