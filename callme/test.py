@@ -29,9 +29,20 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import mock
+import os
 import unittest
 
-import mock
+# How to talk to an AMQP server
+params = {'server_id': 'fooserver'}
+for k in 'host vhost user password port'.split():
+    kk = 'AMQP_' + k.upper()
+    if kk in os.environ:
+        params['amqp_' + k] = os.environ[kk]
+    if 'amqp_port' in params:
+        params['amqp_port'] = int(params['amqp_port'])
+    if 'AMQP_SSL' in os.environ:
+        params['ssl'] = True
 
 
 class TestCase(unittest.TestCase):

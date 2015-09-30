@@ -36,6 +36,8 @@ import callme
 from callme import exceptions as exc
 from callme import test
 
+params = test.params
+
 
 class ActionsTestCase(test.TestCase):
 
@@ -48,24 +50,24 @@ class ActionsTestCase(test.TestCase):
         return t
 
     def test_method_single_call(self):
-        server = callme.Server(server_id='fooserver')
+        server = callme.Server(**params)
         server.register_function(lambda a, b: a + b, 'madd')
         p = self._run_server_thread(server)
 
         try:
-            result = callme.Proxy(server_id='fooserver').madd(1, 1)
+            result = callme.Proxy(**params).madd(1, 1)
             self.assertEqual(result, 2)
         finally:
             server.stop()
         p.join()
 
     def test_method_multiple_calls(self):
-        server = callme.Server(server_id='fooserver')
+        server = callme.Server(**params)
         server.register_function(lambda a, b: a + b, 'madd')
         p = self._run_server_thread(server)
 
         try:
-            proxy = callme.Proxy(server_id='fooserver')
+            proxy = callme.Proxy(**params)
 
             result = proxy.use_server(timeout=3).madd(1, 2)
             self.assertEqual(result, 3)
@@ -85,12 +87,12 @@ class ActionsTestCase(test.TestCase):
             time.sleep(0.1)
             return a
 
-        server = callme.Server(server_id='fooserver')
+        server = callme.Server(**params)
         server.register_function(madd, 'madd')
         p = self._run_server_thread(server)
 
         def threaded_call(i, results):
-            proxy = callme.Proxy(server_id='fooserver')
+            proxy = callme.Proxy(**params)
             results.append((i, proxy.madd(i)))
 
         results = []
@@ -119,12 +121,12 @@ class ActionsTestCase(test.TestCase):
             time.sleep(0.1)
             return a
 
-        server = callme.Server(server_id='fooserver', threaded=True)
+        server = callme.Server(threaded=True, **params)
         server.register_function(madd, 'madd')
         p = self._run_server_thread(server)
 
         def threaded_call(i, results):
-            results.append((i, callme.Proxy(server_id='fooserver').madd(i)))
+            results.append((i, callme.Proxy(**params).madd(i)))
 
         results = []
         threads = []
@@ -147,18 +149,18 @@ class ActionsTestCase(test.TestCase):
             self.assertEqual(i, result)
 
     def test_timeout_call(self):
-        callme.Server(server_id='fooserver')
-        proxy = callme.Proxy(server_id='fooserver', timeout=1)
+        callme.Server(**params)
+        proxy = callme.Proxy(timeout=1, **params)
 
         self.assertRaises(exc.RpcTimeout, proxy.madd, 1, 2)
 
     def test_remote_exception_call(self):
-        server = callme.Server(server_id='fooserver')
+        server = callme.Server(**params)
         server.register_function(lambda a, b: a + b, 'madd')
         p = self._run_server_thread(server)
 
         try:
-            proxy = callme.Proxy(server_id='fooserver')
+            proxy = callme.Proxy(**params)
 
             self.assertRaises(TypeError, proxy.madd)
         finally:
@@ -168,17 +170,19 @@ class ActionsTestCase(test.TestCase):
     def test_multiple_servers_calls(self):
 
         # start server A
-        server_a = callme.Server(server_id='server_a')
+        p = params.copy()
+        del p['server_id']
+        server_a = callme.Server(server_id='server_a', **p)
         server_a.register_function(lambda: 'a', 'f')
         p_a = self._run_server_thread(server_a)
 
         # start server B
-        server_b = callme.Server(server_id='server_b')
+        server_b = callme.Server(server_id='server_b', **p)
         server_b.register_function(lambda: 'b', 'f')
         p_b = self._run_server_thread(server_b)
 
         try:
-            proxy = callme.Proxy(server_id='server_a')
+            proxy = callme.Proxy(server_id='server_a', **p)
 
             result = proxy.f()
             self.assertEqual(result, 'a')

@@ -49,7 +49,7 @@ class TestProxy(test.MockTestCase):
             proxy.kombu, 'Consumer')
 
     def test_use_server_default(self):
-        s = proxy.Proxy('fooserver')
+        s = proxy.Proxy(**test.params)
         self.assertEqual(s._server_id, 'fooserver')
         self.assertEqual(s._timeout, 60)
         s.use_server()
@@ -57,7 +57,7 @@ class TestProxy(test.MockTestCase):
         self.assertEqual(s._timeout, 60)
 
     def test_use_server_custom(self):
-        s = proxy.Proxy('fooserver')
+        s = proxy.Proxy(**test.params)
         self.assertEqual(s._server_id, 'fooserver')
         self.assertEqual(s._timeout, 60)
         s.use_server('test_server', 30)

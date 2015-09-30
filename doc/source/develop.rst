@@ -17,6 +17,11 @@ In the shell::
     # run all tests (make sure the rabbitmq-server service is running)
     ./run_tests.sh
 
+Testing Callme requires a running AMQP server. You can specify the parameters to
+access this server with a couple of environment variables. Again, shell::
+
+    env AMQP_HOST=aqmpserver.my.domain AMQP_USER=test AMQP_PASSWORD=test \
+        AMQP_VHOST=/test ./run_tests.sh
 
 Change Version
 ++++++++++++++

@@ -59,7 +59,7 @@ class TestServer(test.MockTestCase):
     def test_register_function(self):
         def func():
             pass
-        s = server.Server('fooserver')
+        s = server.Server(**test.params)
         self.assertEqual(len(s._func_dict), 0)
         s.register_function(func, 'test')
         self.assertEqual(len(s._func_dict), 1)
@@ -68,12 +68,12 @@ class TestServer(test.MockTestCase):
     def test_register_function_name_autodetect(self):
         def func():
             pass
-        s = server.Server('fooserver')
+        s = server.Server(**test.params)
         self.assertEqual(len(s._func_dict), 0)
         s.register_function(func)
         self.assertEqual(len(s._func_dict), 1)
         self.assertEqual(s._func_dict['func'], func)
 
     def test_register_function_not_callable(self):
-        s = server.Server('fooserver')
+        s = server.Server(**test.params)
         self.assertRaises(ValueError, s.register_function, 1)
