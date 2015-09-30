@@ -1,4 +1,5 @@
 #!/bin/bash
+exit 0 # not needed for testing, destructive. Don't even try to run this.
 rabbitmqctl stop_app
 rabbitmqctl reset
 rabbitmqctl start_app
